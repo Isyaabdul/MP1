@@ -1,19 +1,20 @@
 import javafx.application.Application;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
-import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
+import javafx.geometry.Insets;
+
+
 
 public class NumberCheckerApp extends Application {
 
+    private Stage window;
     private TextField numberInput;
-    private RadioButton redBackground;
-    private RadioButton blueBackground;
+    private RadioButton button1, button2;
+
 
     public static void main(String[] args) {
         launch(args);
@@ -21,53 +22,32 @@ public class NumberCheckerApp extends Application {
 
     @Override
     public void start(Stage primaryStage) {
-        primaryStage.setTitle("Number Checker App");
+        window = primaryStage;
+        window.setTitle("Number Checker App");
 
         // Initialize GUI components
         numberInput = new TextField();
-        redBackground = new RadioButton("Red Background");
-        blueBackground = new RadioButton("Blue Background");
+        button1 = new RadioButton("Red Background");
+        button2 = new RadioButton("Blue Background");
         Button submitButton = new Button("Submit");
+        submitButton.setOnAction(e -> processInput());
 
-        // Group the RadioButtons
-        ToggleGroup toggleGroup = new ToggleGroup();
-        redBackground.setToggleGroup(toggleGroup);
-        blueBackground.setToggleGroup(toggleGroup);
-
-        // Set default background color
-        redBackground.setSelected(true);
-
-        // Event handler for the Submit button
-        submitButton.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent event) {
-                processInput();
-            }
-        });
-
-        // Layout
-        VBox vbox = new VBox(10);
-        vbox.setPadding(new Insets(20, 20, 20, 20));
-        vbox.getChildren().addAll(
-                new Label("Enter a number:"),
-                numberInput,
-                new Label("Select background color:"),
-                redBackground,
-                blueBackground,
+        // Create a VBox layout for the scene
+        VBox layout = new VBox(20);
+        layout.setPadding(new Insets(20));
+        layout.getChildren().addAll(
+                new Label("Enter a number:"), numberInput,
+                new Label("Select Background Color:"), button1, button2,
                 submitButton
         );
 
-        // Create a BorderPane for the background color change
-        BorderPane borderPane = new BorderPane();
-        borderPane.setCenter(vbox);
-
         // Set initial background color
-        borderPane.setStyle("-fx-background-color: red;");
+        layout.setStyle("-fx-background-color: red;");
 
-        // Set the scene
-        Scene scene = new Scene(borderPane, 300, 250);
-        primaryStage.setScene(scene);
-        primaryStage.show();
+        // Create the scene
+        Scene scene = new Scene(layout, 200, 200);
+        window.setScene(scene);
+        window.show();
     }
 
     // Method to process user input
@@ -82,9 +62,12 @@ public class NumberCheckerApp extends Application {
             displayPicture(isEven);
 
             // Change background color based on selected Radio Button
-            changeBackgroundColor();
+            if (button1.isSelected()) {
+                window.getScene().getRoot().setStyle("-fx-background-color: red;");
+            } else if (button2.isSelected()) {
+                window.getScene().getRoot().setStyle("-fx-background-color: blue;");
+            }
         } catch (NumberFormatException e) {
-            // Handle non-integer input
             showAlert("Error", "Please enter a valid integer.");
         }
     }
@@ -93,22 +76,14 @@ public class NumberCheckerApp extends Application {
     private void displayPicture(boolean isEven) {
         ImageView imageView;
         if (isEven) {
-            imageView = new ImageView(new Image("https://upload.wikimedia.org/wikipedia/commons/6/6c/Kid_boy.jpg"));
+            imageView = new ImageView(new Image("Lion.jpg")); // Assuming "Boy.jpg" is the image file
         } else {
-            imageView = new ImageView(new Image("https://ellecrafts.blogspot.com/2017/02/25-baby-girl-hairstyles-best-and-recommended-2017.html"));
+            imageView = new ImageView(new Image("Boy.jpg")); // Assuming "Lion.jpg" is the image file
         }
 
-        // Replace the center of the BorderPane with the new ImageView
-        ((BorderPane) numberInput.getParent()).setCenter(imageView);
-    }
-
-    // Method to change background color based on selected Radio Button
-    private void changeBackgroundColor() {
-        if (redBackground.isSelected()) {
-            ((BorderPane) numberInput.getParent()).setStyle("-fx-background-color: red;");
-        } else if (blueBackground.isSelected()) {
-            ((BorderPane) numberInput.getParent()).setStyle("-fx-background-color: blue;");
-        }
+        // Center the image within the VBox layout
+        StackPane imageContainer = new StackPane(imageView);
+        ((VBox) window.getScene().getRoot()).getChildren().set(1, imageContainer);
     }
 
     // Method to show an alert for error messages
